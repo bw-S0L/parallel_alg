@@ -1,97 +1,170 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<iostream>
-#include<time.h>
-#include<omp.h>
-
-//用wsl环境，但coding环境是windows，避免飘红
-#ifdef __linux__
-#include <sys/time.h> 
+#include <math.h>
+#include <omp.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
-#endif
+#include <iostream>
+// 数据范围 -1e9~1e9
+#define INF INT32_MAX / 2
 
-
-//最大规模 100K
-#define N 1000005
-//数据范围 -1e9~1e9
-#define INF INT32_MAX/2
-int init_array[N];
 using namespace std;
-
+int* tmp_a;
 void swap(int& a, int& b) {
-	int h;
-	h = a;
-	a = b;
-	b = h;
+    int h;
+    h = a;
+    a = b;
+    b = h;
 }
-//生成随机数组
-void rand_arr(int arr_rand[], int len, int begin, int end){
+// 生成随机数组
+void rand_arr(int arr_rand[], int len, int begin, int end) {
     srand((unsigned)time(NULL));
-    for (int i = 0; i < len; i++){
+    for (int i = 0; i < len; i++) {
         arr_rand[i] = rand() % (begin - end + 1) + begin;
     }
 }
-void qs(int a[], int l, int r) {
-	if (r <= l) return;
-	
-	int i = l-1, j = r,p=l-1,q=r,x;
-	swap(a[(l + r) / 2], a[r]);
-	x = a[r];
-	while (1) {
-		while (a[++i] < x);
-		while (a[--j] > x)
-			if (j == l)
-				break;
-		if (i >= j) break;
-		swap(a[i], a[j]);
-		if (a[i] == x)
-			swap(a[++p], a[i]);
-		if (a[j] == x)
-			swap(a[--q], a[j]);
-	}
-	swap(a[i], a[r]);
-	j = i - 1;
-	i = i + 1;
-	for (int k = l; k <= p; k++, j--)
-		swap(a[k], a[j]);
-	for (int k = r-1; k >= q; k--, i++)
-		swap(a[k], a[i]);
-    
-#pragma omp parallel  sections//并行区域
-    {  
-#pragma omp section
-	{	
-		printf("1： %d\n",omp_get_thread_num());
-        qs(a, l, j);
-	}
-#pragma omp section
-	{	
-		printf("2： %d\n",omp_get_thread_num());
-        qs(a, i, r);   
-	}
+// 归并排序
+void merge(int a[], int l, int m, int r) {
+    int i, j;
+    for (i = m + 1; i > l; i--) {
+        tmp_a[i - 1] = a[i - 1];
+    }
+    for (j = m; j < r; j++) {
+        tmp_a[r + m - j] = a[j + 1];
+    }
+    for (int k = l; k <= r; k++) {
+        if (tmp_a[j] < tmp_a[i]) {
+            a[k] = tmp_a[j--];
+        } else {
+            a[k] = tmp_a[i++];
+        }
     }
 }
-int main(int argc,char* argv[]) {
-	int n;
-    double run_time;
-	n=atoi(argv[1]);
-    rand_arr(init_array,n,-INF,INF);
+void MergeSortBU(int a[], int l, int r, int step) {
+    for (int m = step; m < r; m += m) {
+// 进行并行的merge
+#pragma omp parallel for
+        for (int i = l; i <= r - m; i += m + m) {
+            merge(a, i, i + m - 1, min(i + m + m - 1, r));
+        }
+    }
+}
+// 快排
+void qs(int a[], int l, int r) {
+    if (r <= l)
+        return;
 
-#ifdef __linux__
+    int i = l - 1, j = r, p = l - 1, q = r, x;
+    swap(a[(l + r) / 2], a[r]);
+    x = a[r];
+    while (1) {
+        while (a[++i] < x)
+            ;
+        while (a[--j] > x)
+            if (j == l)
+                break;
+        if (i >= j)
+            break;
+        swap(a[i], a[j]);
+        if (a[i] == x)
+            swap(a[++p], a[i]);
+        if (a[j] == x)
+            swap(a[--q], a[j]);
+    }
+    swap(a[i], a[r]);
+    j = i - 1;
+    i = i + 1;
+    for (int k = l; k <= p; k++, j--)
+        swap(a[k], a[j]);
+    for (int k = r - 1; k >= q; k--, i++)
+        swap(a[k], a[i]);
+
+    qs(a, l, j);
+    qs(a, i, r);
+}
+
+void parallel_quick_sort(int a[], int n, int thread_num) {
+    int step = ceil((double)n / thread_num);
+
+#pragma omp parallel
+    {
+        int index;
+#ifdef _OPENMP
+        index = omp_get_thread_num();
+#endif
+        int l, r;
+        l = index * step;
+        r = min(l + step - 1, n - 1);
+        // printf("%d  %d   %d\n", index, l, r);
+        qs(a, l, r);
+    }
+    MergeSortBU(a, 0, n - 1, step);
+}
+
+void test(int n, int m, double& single_time) {
+    double run_time;
+    int* init_array;
+    init_array = (int*)malloc(sizeof(int) * (n + 5));
+#ifdef _OPENMP
+    // 设置线程数
+    omp_set_num_threads(m);
+    tmp_a = (int*)malloc(sizeof(int) * (n + 5));
+#endif
+    rand_arr(init_array, n, -INF, INF);
+
     struct timeval start, end;
-    gettimeofday( &start, NULL );
+    gettimeofday(&start, NULL);
+
+#ifdef _OPENMP
+    parallel_quick_sort(init_array, n, m);
+#else
+    qs(init_array, 0, n - 1);
 #endif
-    qs(init_array, 0, n-1);	
-#ifdef __linux__
-    gettimeofday( &end, NULL );
+
+    gettimeofday(&end, NULL);
+    run_time = (double)(int)(end.tv_sec - start.tv_sec) * 1000 +
+               (double)(end.tv_usec - start.tv_usec) / 1000;
+// printf("线程数： %d\n",omp_get_num_threads());
+#ifdef _OPENMP
+    if (m == 1) {
+        single_time = run_time;
+    }
+    printf("%dK 并行 %d线程 运行时间为:  %f ms   加速比%f\n", n / 1000, m,
+           run_time, single_time / run_time);
+    free(tmp_a);
+#else
+    printf("%dK 串行 运行时间为:  %f ms\n", n / 1000, run_time);
 #endif
-#ifdef __linux__
-	run_time=(double)(int)(end.tv_sec-start.tv_sec)*1000+(double)(end.tv_usec- start.tv_usec)/1000;
-	printf("线程数： %d\n",omp_get_num_threads());
-    printf("%dK 运行时间为:\n%f ms\n",n/1000,run_time);
+    // for (int i = 0; i < n; i++)
+    // 	printf("%d\n", init_array[i]);
+    // for (int i = 1; i < n; i++){
+    //     if(init_array[i]<init_array[i-1]){
+    //         printf("错误 %d\n",i);
+    //         break;
+    //     }
+    // }
+    free(init_array);
+}
+int main(int argc, char* argv[]) {
+    int n, m;
+    // 设置数组规模
+    // n = atoi(argv[1]);
+    // m = atoi(argv[2]);
+    double single_time[10];
+    int x[] = {1000, 5000, 10000, 100000, 1000000, 10000000};
+
+#ifdef _OPENMP
+    for (int i = 0; i < 6; i++) {
+        for (int m = 1; m <= 32; m *= 2) {
+            test(x[i], m, single_time[i]);
+        }
+    }
+#else
+    for (int i = 0; i < 6; i++) {
+        test(x[i], 1, single_time[i]);
+    }
 #endif
-	// for (int i = 0; i < n; i++)
-	// 	printf("%d\n", init_array[i]);
-    // printf("\n");
-	return 0;
+
+    return 0;
 }
