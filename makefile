@@ -1,6 +1,6 @@
 
 out:pj2.out
-	 mpirun -np 4 ./$<  1000 >> test.output 
+	 mpirun -np 8 ./$<  10000000 > test.output 
 	
 pj2.out:pj2.cpp 
 	mpic++   $<   -o $@
