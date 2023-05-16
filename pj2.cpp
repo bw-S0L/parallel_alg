@@ -224,7 +224,7 @@ int main(int argc, char* argv[]) {
       gettimeofday(&end, NULL);
     run_time = (double)(int)(end.tv_sec - start.tv_sec) * 1000 +
                (double)(end.tv_usec - start.tv_usec) / 1000;
-      printf("%dK 并行 %d进程程 运行时间为:  %f ms \n", n / 1000, num_procs,
+      printf("%dK 并行 %d进程 运行时间为:  %f ms \n", n / 1000, num_procs,
            run_time);
      }
     if (id_procs == 0) {
