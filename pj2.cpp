@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <omp.h>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
@@ -79,16 +78,23 @@ void merge(int a[], int l, int m, int r, int tmp_a[]) {
         }
     }
 }
-void MergeSortBU(int a[], int l, int r,int rcounts[],int block_num) {
+void MergeSortBU(int a[], int l, int r,int rdispls[],int block_num) {
     int* tmp_a = (int*)malloc(sizeof(int) * (r+1));
-    int index=1;
-    int m;
-    while(index<block_num){
-        m=l+rcounts[index-1]-1;
-        r=m+rcounts[index];
-        merge(a, l, m, r, tmp_a);
-        rcounts[index]+=rcounts[index-1];
-        index++;
+
+    int block_l=0,block_r=block_num-1;
+       for (int m = 1; m <=block_r; m += m) {
+        for (int i = block_l; i <= block_r - m; i += m + m) {
+            int ll=i,mm=i + m - 1,rr=min(i + m + m - 1, block_r);
+            int x;
+            if(rr+1==block_num){
+                x=r;
+            }
+            else{
+                x=rdispls[rr+1]-1;
+            }
+            
+            merge(a, rdispls[ll], rdispls[mm+1]-1, x, tmp_a);
+        }
     }
     free(tmp_a);
 }
@@ -208,7 +214,8 @@ int main(int argc, char* argv[]) {
                   MPI_COMM_WORLD);
 
     // 归并排序，考虑清楚步长
-    MergeSortBU(b, 0, totalcounts - 1,rcounts,num_procs);
+    // qs(b,0,totalcounts-1);
+    MergeSortBU(b, 0, totalcounts - 1,rdispls,num_procs);
 
     // Proc#0 收集有序数组
     MPI_Gather(&totalcounts, 1, MPI_INT, rcounts, 1, MPI_INT, 0,
@@ -228,6 +235,12 @@ int main(int argc, char* argv[]) {
            run_time);
      }
     if (id_procs == 0) {
+        for(int i=1;i<n;i++){
+            if(result[i]<result[i-1]){
+                printf("error  %d  %d<%d\n",i,result[i],result[i-1]);
+                break;
+            }
+        }
         free(result);
         free(array);
     }
