@@ -17,11 +17,10 @@ using namespace std;
 
 /**************** 全局变量声明**************/
 //矩阵大小
-#define N 512 
-int n;
+int N;
 //block是块的大小，block_size是块元素个数，等于block*block，num_procs是处理器个数，dim是sqrt(num_procs)
 int block, block_size, num_procs, dim;
-double A[N][N],B[N][N],C[N][N];
+double**A,**B,**C;
 double *a, *b, *c, *temp_a, *temp_b;
 // id_procs是处理器的id，(my_row, my_col)是处理器逻辑阵列坐标
 int id_procs, my_row, my_col;
@@ -47,7 +46,6 @@ int main(int argc, char* argv[]) {
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
     MPI_Comm_rank(MPI_COMM_WORLD, &id_procs);
-    printf("num_procs=%d\n",num_procs);
     dim = sqrt(num_procs);
     
     if (dim * dim != num_procs) {
@@ -57,7 +55,7 @@ int main(int argc, char* argv[]) {
         MPI_Finalize();
         exit(1);
     }
-    
+    N = atoi(argv[1]);
     block = N / dim;
     block_size = block * block;
     
@@ -110,11 +108,18 @@ int get_index(int row, int col, int dim) {
 }
  
 /*
+分配空间
  随机生成矩阵A和B
  */
 void init_Matrix() {
+    A=(double **) malloc(N * sizeof(double));
+    B=(double **) malloc(N * sizeof(double));
+    C=(double **) malloc(N * sizeof(double));
     srand((unsigned int) time(NULL)); //设置随机数种子
     for (int i = 0; i < N; i++) {
+        A[i]=(double *) malloc(N * sizeof(double));
+        B[i]=(double *) malloc(N * sizeof(double));
+        C[i]=(double *) malloc(N * sizeof(double));
         for (int j = 0; j < N; j++) {
             A[i][j] = rand()%INF;
             B[i][j] = rand()%INF;
