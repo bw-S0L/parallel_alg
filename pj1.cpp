@@ -102,10 +102,12 @@ void parallel_quick_sort(int a[], int n, int thread_num) {
         // printf("%d  %d   %d\n", index, l, r);
         qs(a, l, r);
     }
-    MergeSortBU(a, 0, n - 1, step);
+    if(thread_num>1){
+        MergeSortBU(a, 0, n - 1, step);
+    }
 }
 
-void test(int n, int m, double& single_time) {
+double test(int n, int m) {
     double run_time;
     int* init_array;
     init_array = (int*)malloc(sizeof(int) * (n + 5));
@@ -130,11 +132,9 @@ void test(int n, int m, double& single_time) {
                (double)(end.tv_usec - start.tv_usec) / 1000;
 // printf("线程数： %d\n",omp_get_num_threads());
 #ifdef _OPENMP
-    if (m == 1) {
-        single_time = run_time;
-    }
-    printf("%dK 并行 %d线程 运行时间为:  %f ms   加速比%f\n", n / 1000, m,
-           run_time, single_time / run_time);
+    // printf("%dK 并行 %d线程 运行时间为:  %f ms \n", n / 1000, m,
+    //        run_time);
+    printf("%f ", run_time);
     free(tmp_a);
 #else
     printf("%dK 串行 运行时间为:  %f ms\n", n / 1000, run_time);
@@ -148,6 +148,7 @@ void test(int n, int m, double& single_time) {
     //     }
     // }
     free(init_array);
+    return run_time;
 }
 int main(int argc, char* argv[]) {
     int n, m;
@@ -156,16 +157,22 @@ int main(int argc, char* argv[]) {
     // m = atoi(argv[2]);
     double single_time[10];
     int x[] = {1000, 5000, 10000, 100000, 1000000, 10000000};
-
+    double runtime[10];
 #ifdef _OPENMP
     for (int i = 0; i < 6; i++) {
-        for (int m = 1; m <= 32; m *= 2) {
-            test(x[i], m, single_time[i]);
+        printf("%dK\n",x[i]/1000);
+        for (int m = 1,j=0; m <= 32; m *= 2,j++) {
+            runtime[j]=test(x[i], m);
         }
+        printf("\n");
+        for(int j=0;j<6;j++){
+            printf("%f ",runtime[0]/runtime[j]);
+        }
+        printf("\n");
     }
 #else
     for (int i = 0; i < 6; i++) {
-        test(x[i], 1, single_time[i]);
+        test(x[i], 1);
     }
 #endif
 
