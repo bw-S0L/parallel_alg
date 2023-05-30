@@ -1,0 +1,21 @@
+import os
+
+
+os.system("mpiexec -n 4 test_CuDa.exe  256 >> test.txt")
+os.system("mpiexec -n 16 test_CuDa.exe  256 >> test.txt")
+os.system("mpiexec -n 1 test_CuDa.exe  256 >> test.txt")
+# os.system("mpiexec -n 1 test_CuDa.exe  512 >> test.txt")
+# os.system("mpiexec -n 4 test_CuDa.exe  512 >> test.txt")
+# os.system("mpiexec -n 16 test_CuDa.exe  512 >> test.txt")
+# os.system("mpiexec -n 1 test_CuDa.exe  1024 >> test.txt")
+# os.system("mpiexec -n 4 test_CuDa.exe  1024 >> test.txt")
+# os.system("mpiexec -n 16 test_CuDa.exe  1024 >> test.txt")
+# os.system("mpiexec -n 1 test_CuDa.exe  2048 >> test.txt")
+# os.system("mpiexec -n 4 test_CuDa.exe  2048 >> test.txt")
+# os.system("mpiexec -n 16 test_CuDa.exe  2048 >> test.txt")
+# os.system("mpiexec -n 1 test_CuDa.exe  4096 >> test.txt")
+# os.system("mpiexec -n 4 test_CuDa.exe  4096 >> test.txt")
+# os.system("mpiexec -n 16 test_CuDa.exe  4096 >> test.txt")
+# os.system("mpiexec -n 4 test_CuDa.exe  8192  >> test.txt")
+# os.system("mpiexec -n 16 test_CuDa.exe  8192  >> test.txt")
+print("执行成功")
