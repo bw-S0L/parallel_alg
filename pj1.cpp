@@ -26,6 +26,9 @@ void rand_arr(int arr_rand[], int len, int begin, int end) {
 }
 // 归并排序
 void merge(int a[], int l, int m, int r) {
+    if(r<=m){
+        return;
+    }
     int i, j;
     for (i = m + 1; i > l; i--) {
         tmp_a[i - 1] = a[i - 1];
