@@ -48,3 +48,36 @@ GPU: Dim: 4096 Parral  Processes: 16 RunTime: 4985.000000 ms
 GPU: Dim: 8192 Parral  Processes: 4 RunTime: 61063.000000 ms 
 GPU: Dim: 8192 Parral  Processes: 16 RunTime: 40093.000000 ms 
 
+GPU: Dim: 256 Parral  Processes: 1 RunTime: 94.000000 ms 
+GPU: Dim: 256 Parral  Processes: 4 RunTime: 500.000000 ms 
+GPU: Dim: 256 Parral  Processes: 16 RunTime: 1454.000000 ms 
+GPU: Dim: 512 Parral  Processes: 1 RunTime: 125.000000 ms 
+GPU: Dim: 512 Parral  Processes: 4 RunTime: 328.000000 ms 
+GPU: Dim: 512 Parral  Processes: 16 RunTime: 1328.000000 ms 
+GPU: Dim: 1024 Parral  Processes: 1 RunTime: 172.000000 ms 
+GPU: Dim: 1024 Parral  Processes: 4 RunTime: 375.000000 ms 
+GPU: Dim: 1024 Parral  Processes: 16 RunTime: 1578.000000 ms 
+GPU: Dim: 2048 Parral  Processes: 1 RunTime: 687.000000 ms 
+GPU: Dim: 2048 Parral  Processes: 4 RunTime: 750.000000 ms 
+GPU: Dim: 2048 Parral  Processes: 16 RunTime: 1890.000000 ms 
+GPU: Dim: 4096 Parral  Processes: 1 RunTime: 7875.000000 ms 
+GPU: Dim: 4096 Parral  Processes: 4 RunTime: 5187.000000 ms 
+GPU: Dim: 4096 Parral  Processes: 16 RunTime: 5610.000000 ms 
+GPU: Dim: 8192 Parral  Processes: 4 RunTime: 61016.000000 ms 
+GPU: Dim: 8192 Parral  Processes: 16 RunTime: 40656.000000 ms 
+
+CPU: Dim: 256 Parral  Processes: 1 RunTime: 47.000000 ms 
+CPU: Dim: 256 Parral  Processes: 4 RunTime: 15.000000 ms 
+CPU: Dim: 256 Parral  Processes: 16 RunTime: 16.000000 ms 
+CPU: Dim: 512 Parral  Processes: 1 RunTime: 422.000000 ms 
+CPU: Dim: 512 Parral  Processes: 4 RunTime: 109.000000 ms 
+CPU: Dim: 512 Parral  Processes: 16 RunTime: 47.000000 ms 
+CPU: Dim: 1024 Parral  Processes: 1 RunTime: 14515.000000 ms 
+CPU: Dim: 1024 Parral  Processes: 4 RunTime: 1547.000000 ms 
+CPU: Dim: 1024 Parral  Processes: 16 RunTime: 453.000000 ms 
+CPU: Dim: 2048 Parral  Processes: 1 RunTime: 154219.000000 ms 
+CPU: Dim: 2048 Parral  Processes: 4 RunTime: 37203.000000 ms 
+CPU: Dim: 2048 Parral  Processes: 16 RunTime: 4813.000000 ms 
+
+GPU: Dim: 4096 Parral  Processes: 16 RunTime: 6328.000000 ms 
+GPU: Dim: 8192 Parral  Processes: 1 RunTime: 103282.000000 ms 
